@@ -10,7 +10,7 @@
   registers are 16 bits.
 */
 /* The period between sound samples, in clock cycles */
-#define   SAMPLE_PERIOD   0
+//#define   SAMPLE_PERIOD   0
 
 /* Declaration of peripheral setup functions */
 void setupTimer(uint32_t period);
@@ -39,17 +39,9 @@ int main(void)
 void setupNVIC(){
 // is this correct?? Where does the 0 or 1 go?
 
-//enable GPIO_EVEN
-NVIC_SETENA_1;
-NVIC_EnableIRQ(GPIO_ODD_IRQn);
+//enable GPIO_EVEN and GPIO ODD
+  *ISER0 |= IRQ_TIMER1;
 
-//enable GPIO_ODD
-NVIC_SETENA_11;
-NVIC_EnableIRQ(GPIO_EVEN_IRQn);
-
-//enable TIMER1
-NVIC_SETENA_12;
-NVIC_EnableIRQ(TIMER1_IRQn);
 
 
   /* TODO use the NVIC ISERx registers to enable handling of interrupt(s)
