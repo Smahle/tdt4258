@@ -13,7 +13,7 @@ void setupDAC()
     4. Write a continuous stream of samples to the DAC data registers, DAC0_CH0DATA and DAC0_CH1DATA, for example from a timer interrupt
   */
 	*CMU_HFPERCLKEN0 |= CMU2_HFPERCLKEN0_DAC0;	//Enable DAC clock
-	*DAC_CTRL = 0x50010;				//Prescale DAC clock
+	*DAC0_CTRL = 0x50010;				//Prescale DAC clock
 	*DAC0_CH0CTRL = 1;				//Enable audio channels
 	*DAC0_CH1CTRL = 1;	
 				
