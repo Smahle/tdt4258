@@ -4,7 +4,7 @@
 #include "efm32gg.h"
 
 /* function to setup the timer */
-void setupTimer(uint16_t period)
+void setupTimer()
 {
   /*
     TODO enable and set up the timer
