@@ -23,4 +23,3 @@ void setupTimer(uint16_t period)
   /**TIMER1_CMD = 1;*/  /*start timer. moved to interrupt handler*/
 }
 
-
