@@ -15,28 +15,28 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
   static int t = 0;
   
   if (GPIO_PC_DIN == 0xFFFFFFFE){ /*check which button is being pressed*/
-	*DAC0_CH0DATA = 100*sin(t/4*3.14)
+	*DAC0_CH0DATA = 100*sin(t/4*3.14);
 	}
   else if (GPIO_PC_DIN == 0xFFFFFFFD){
-	*DAC0_CH0DATA = 100*sin(t/8*3.14)
+	*DAC0_CH0DATA = 100*sin(t/8*3.14);
 	}
   else if (GPIO_PC_DIN == 0xFFFFFFFB){
-	*DAC0_CH0DATA = 100*sin(t/16*3.14)
+	*DAC0_CH0DATA = 100*sin(t/16*3.14);
 	}
   else if (GPIO_PC_DIN == 0xFFFFFFF7){
-	*DAC0_CH0DATA = 100*sin(t/32*3.14)
+	*DAC0_CH0DATA = 100*sin(t/32*3.14);
 	}
   else if (GPIO_PC_DIN == 0xFFFFFFEF){
-	*DAC0_CH0DATA = 100*sin(t/64*3.14)
+	*DAC0_CH0DATA = 100*sin(t/64*3.14);
 	}
   else if (GPIO_PC_DIN == 0xFFFFFFDF){
-	*DAC0_CH0DATA = 100*sin(t/128*3.14)
+	*DAC0_CH0DATA = 100*sin(t/128*3.14);
 	}
   else if (GPIO_PC_DIN == 0xFFFFFFBF){
-	*DAC0_CH0DATA = 100*sin(t/4*3.14)
+	*DAC0_CH0DATA = 100*sin(t/4*3.14);
 	}
   else if (GPIO_PC_DIN == 0xFFFFFF7F){
-	*DAC0_CH0DATA = 100*sin(t/4*3.14)
+	*DAC0_CH0DATA = 100*sin(t/4*3.14);
 	}
   else{
 	*TIMER_CMD = 0;
