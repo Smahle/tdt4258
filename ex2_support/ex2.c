@@ -15,6 +15,7 @@
 /* Declaration of peripheral setup functions */
 void setupTimer();
 void setupDAC();
+void setupGPIO();
 void setupNVIC();
 
 /* Your code will start executing here */
