@@ -71,6 +71,11 @@
 
 // NVIC
 
+#define IRQ_DMA (1<<0)
+#define IRQ_TIMER1 (1<<12)
+#define IRQ_GPIO_EVEN (1<<1)
+#define IRQ_GPIO_ODD (1<<11)
+
 #define ISER0 ((volatile uint32_t*)0xe000e100)
 #define ISER1 ((volatile uint32_t*)0xe000e104)
 #define ICER0 ((volatile uint32_t*)0xe000e180)
@@ -140,4 +145,3 @@
 #define SCR          ((volatile uint32_t*)0xe000ed10)
 #define SYSTICK_CTRL ((volatile uint32_t*)0xe000e010)
 #define SYSTICK_LOAD ((volatile uint32_t*)0xe000e014)
-
