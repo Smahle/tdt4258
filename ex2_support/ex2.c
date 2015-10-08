@@ -13,7 +13,7 @@
 //#define   SAMPLE_PERIOD   0
 
 /* Declaration of peripheral setup functions */
-void setupTimer(uint32_t period);
+void setupTimer();
 void setupDAC();
 void setupNVIC();
 
