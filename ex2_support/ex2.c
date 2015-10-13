@@ -42,7 +42,6 @@ void setupNVIC(){
 // is this correct?? Where does the 0 or 1 go?
 
 //enable GPIO_EVEN and GPIO ODD
-*GPIO_IFC = 1; /* clear interrupt */
   *ISER0 |= IRQ_TIMER1;
   *ISER0 |= IRQ_GPIO_ODD;
   *ISER0 |= IRQ_GPIO_EVEN;
