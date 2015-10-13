@@ -43,6 +43,8 @@ void setupNVIC(){
 
 //enable GPIO_EVEN and GPIO ODD
   *ISER0 |= IRQ_TIMER1;
+  *ISER0 |= IRQ_GPIO_ODD;
+  *ISER0 |= IRQ_GPIO_EVEN;
 
 
 
