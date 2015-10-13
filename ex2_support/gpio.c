@@ -22,7 +22,9 @@ void setupGPIO()
   
   *GPIO_EXTIPSELL = 0x22222222;
   *GPIO_EXTIFALL = 0xFF;
+  *GPIO_EXTIRISE = 0xFF;
   *GPIO_IEN = 0xFF;
+  *GPIO_INSENSE = 1; 
 	
 
 
