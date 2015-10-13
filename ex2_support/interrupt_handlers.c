@@ -14,8 +14,8 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
   */
   //(*GPIO_PA_DOUT)++;	
   static int t = 0;
-  /*
-  if (*GPIO_PC_DIN == 0xFFFFFFFE){ check which button is being pressed
+ 
+  if (*GPIO_PC_DIN == 0xFFFFFFFE){ /*check which button is being pressed*/
 	*DAC0_CH0DATA = 100*sin(t/4*3.14);
 	}
   else if (*GPIO_PC_DIN == 0xFFFFFFFD){
@@ -41,7 +41,7 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 	}
   else{
 	*TIMER1_CMD = 0;
-	} */
+	} 
   
 	
   
