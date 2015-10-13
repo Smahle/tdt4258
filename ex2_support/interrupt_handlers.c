@@ -40,7 +40,7 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 	*DAC0_CH0DATA = 100*sin(t/4*3.14);
 	}
   else{
-	*TIMER_CMD = 0;
+	*TIMER1_CMD = 0;
 	}
   
 	
