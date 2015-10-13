@@ -67,6 +67,6 @@ void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler()
     /* TODO handle button pressed event, remember to clear pending interrupt */
 	//*TIMER1_CMD = 1;
 	*GPIO_PA_DOUT = 0xFF00;
-	*GPIO_IFC = 1; /* clear interrupt */
+	*GPIO_IFC = *GPIO_IF; /* clear interrupt */
 	
 }
