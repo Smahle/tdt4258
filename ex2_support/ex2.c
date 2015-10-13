@@ -33,7 +33,7 @@ int main(void)
   /* TODO for higher energy efficiency, sleep while waiting for interrupts
      instead of infinite loop for busy-waiting
   */
-  *GPIO_PA_DOUT = 0;
+  (*GPIO_PA_DOUT)++;
   while(1);
 
   return 0;
