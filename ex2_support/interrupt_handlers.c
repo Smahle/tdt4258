@@ -12,7 +12,7 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 	DAC0_CH0DATA and DAC0_CH1DATA
     remember to clear the pending interrupt by writing 1 to TIMER1_IFC
   */
-  //(*GPIO_PA_DOUT)++;	
+  (*GPIO_PA_DOUT)++;	
   static int t = 0;
  
   if (*GPIO_PC_DIN == 0xFFFFFFFE){ /*check which button is being pressed*/
@@ -55,8 +55,8 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler() 
 {
     /* TODO handle button pressed event, remember to clear pending interrupt */
-	//*TIMER1_CMD = 1;
-	*GPIO_PA_DOUT = 0xFF00;
+	*TIMER1_CMD = 1;
+	
 	*GPIO_IFC = *GPIO_IF; /* clear interrupt */
 	
 }
@@ -65,8 +65,8 @@ void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler() 
 {
     /* TODO handle button pressed event, remember to clear pending interrupt */
-	//*TIMER1_CMD = 1;
-	*GPIO_PA_DOUT = 0xFF00;
+	*TIMER1_CMD = 1;
+	
 	*GPIO_IFC = *GPIO_IF; /* clear interrupt */
 	
 }
