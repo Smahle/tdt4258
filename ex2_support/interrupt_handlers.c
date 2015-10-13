@@ -12,7 +12,7 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 	DAC0_CH0DATA and DAC0_CH1DATA
     remember to clear the pending interrupt by writing 1 to TIMER1_IFC
   */
-  (*GPIO_PA_DOUT)++;	
+  //(*GPIO_PA_DOUT)++;	
   static int t = 0;
   
   if (*GPIO_PC_DIN == 0xFFFFFFFE){ /*check which button is being pressed*/
