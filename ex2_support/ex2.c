@@ -18,6 +18,7 @@ void setupTimer();
 void setupDAC();
 void setupGPIO();
 void setupNVIC();
+void enableSleep();
 
 /* Your code will start executing here */
 int main(void) 
