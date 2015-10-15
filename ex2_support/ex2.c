@@ -42,9 +42,8 @@ int main(void)
 }
 
 void enableSleep(){
-  if(*SLEEPDEEP || *SLEEPONEXIT){
-  *SCR=*SLEEPDEEP;
-  }
+  *SCR|=SLEEPDEEP;
+  *SCR|=SLEEPONEXIT;
 }
 
 void setupNVIC(){
