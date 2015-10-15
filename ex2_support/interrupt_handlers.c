@@ -74,11 +74,7 @@ enableSleep();
   *TIMER1_IFC = 1; /* clear interrupt */
 }
 
-void enableSleep(){
-  if(SLEEPDEEP || SLEEPONEXIT){
-  SCR=SLEEPDEEP;
-  }
-}
+
 
 /* GPIO even pin interrupt handler */
 void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler() 
