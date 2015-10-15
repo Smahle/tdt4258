@@ -21,6 +21,6 @@ void setupTimer()
   *CMU_HFPERCLKEN0 |= CMU2_HFPERCLKEN0_TIMER1;
   *TIMER1_TOP = 317; /* set timer to 44100Hz, maybe change value later? */
   *TIMER1_IEN = 1; /* enable timer interrupt generation*/
-  *TIMER1_CMD = 0;  /*start timer. moved to interrupt handler*/
+  //*TIMER1_CMD = 1;  /*start timer. moved to interrupt handler*/
 }
 
