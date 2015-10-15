@@ -39,6 +39,11 @@ int main(void)
   return 0;
 }
 
+void enableSleep(){
+  if(SLEEPDEEP || SLEEPONEXIT){
+  SCR=SLEEPDEEP;
+  }
+}
 
 void setupNVIC(){
 // is this correct?? Where does the 0 or 1 go?
