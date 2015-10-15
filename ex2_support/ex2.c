@@ -29,6 +29,7 @@ int main(void)
   
   /* Enable interrupt handling */
   setupNVIC();
+  enableSleep();
   
   /* TODO for higher energy efficiency, sleep while waiting for interrupts
      instead of infinite loop for busy-waiting
@@ -40,8 +41,8 @@ int main(void)
 }
 
 void enableSleep(){
-  if(SLEEPDEEP || SLEEPONEXIT){
-  SCR=SLEEPDEEP;
+  if(*SLEEPDEEP || *SLEEPONEXIT){
+  *SCR=*SLEEPDEEP;
   }
 }
 
