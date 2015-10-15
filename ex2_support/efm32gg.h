@@ -144,6 +144,8 @@
 #define PRS_CH0_CTRL ((volatile uint32_t*)(PRS_BASE + 0x010))
 
 // System Control Block
+#define SLEEPDEEP   = (1 << 2)
+#define SLEEPONEXIT = (1 << 1)
 
 #define SCR          ((volatile uint32_t*)0xe000ed10)
 #define SYSTICK_CTRL ((volatile uint32_t*)0xe000e010)
