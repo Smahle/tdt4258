@@ -39,8 +39,7 @@ int main(void)
   return 0;
 }
 void enableSleep(){
-  SCR
-  if(#SLEEPDEEP || #SLEEPONEXIT){
+  if(SLEEPDEEP || SLEEPONEXIT){
   SCR=SLEEPDEEP;
   }
   
