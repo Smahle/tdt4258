@@ -22,7 +22,7 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
   uint_fast8_t buttons = (*GPIO_PC_DIN & 0xFF);
   *GPIO_PA_DOUT = buttons << 8;
 
-enableSleep();
+
   double angular_frequency;
   if (buttons == 0xFE){ /*check which button is being pressed*/
     if (t<=(SAMPLING_FREQ)){
