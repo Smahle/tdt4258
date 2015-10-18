@@ -1,8 +1,14 @@
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
 
 #include "efm32gg.h"
+
+#define VOLUME        (2.0)
+#define PI            (3.14159)
+#define SAMPLE_PERIOD (0.00002267573696145124)
+#define SAMPLING_FREQ (44100)
 
 /* 
   TODO calculate the appropriate sample period for the sound wave(s) 
@@ -20,6 +26,8 @@ void setupGPIO();
 void setupNVIC();
 void enableSleep();
 
+void startupMelody(); // Implemented in interrupt_handlers.c
+
 /* Your code will start executing here */
 int main(void) 
 {  
@@ -27,6 +35,9 @@ int main(void)
   setupGPIO();
   setupDAC();
   setupTimer();
+
+  /* Play melody. */
+  startupMelody();
   
   /* Enable interrupt handling */
   setupNVIC();
@@ -42,7 +53,7 @@ int main(void)
 }
 
 void enableSleep(){
-  *SCR|=SLEEPDEEP;
+  //*SCR|=SLEEPDEEP;
   *SCR|=SLEEPONEXIT;
 }
 
@@ -64,6 +75,7 @@ void setupNVIC(){
      assignment.
   */
 }
+
 
 /* if other interrupt handlers are needed, use the following names: 
    NMI_Handler
