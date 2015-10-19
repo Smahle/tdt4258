@@ -58,7 +58,6 @@ void enableSleep(){
 }
 
 void setupNVIC(){
-// is this correct?? Where does the 0 or 1 go?
 
 //enable GPIO_EVEN and GPIO ODD
   *ISER0 |= IRQ_TIMER1;
