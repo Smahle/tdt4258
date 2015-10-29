@@ -1,0 +1,1 @@
+/home/tdt4258/Desktop/tdt4258/OSELAS.BSP-EnergyMicro-Gecko/local_src/driver-gamepad-1.0/Makefile
