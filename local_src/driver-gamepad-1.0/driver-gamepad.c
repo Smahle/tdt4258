@@ -5,6 +5,7 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
+#include <linux/ioport.h>
 
 /*
  * template_init - function to insert this module into kernel space
@@ -17,8 +18,13 @@
 
 static int __init template_init(void)
 {
-	printk("Hello World, here is your module speaking\n");
+	int x =	request_mem_region(FIRST, LENGTH, NAME);
+	if (x == NULL){
+	return -1;
+
+	ioremap_nocache();
 	return 0;
+
 }
 
 /*
@@ -33,9 +39,22 @@ static void __exit template_cleanup(void)
 	 printk("Short life for a small module...\n");
 }
 
+struct resource *request_region(unsigned long first, unsigned long n, const char *name);
+
+
+
+
+
+
+// See I/O Allocation chapter 9 in LDD
+
+
+
 module_init(template_init);
 module_exit(template_cleanup);
 
 MODULE_DESCRIPTION("Small module, demo only, not very useful.");
 MODULE_LICENSE("GPL");
+
+
 
