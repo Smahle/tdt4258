@@ -18,9 +18,9 @@
 #include <asm/io.h>
 #include "efm32gg.h"
 
- #define DEVICE_NAME "GPIO_PAD"
+#define DEVICE_NAME "GPIO_PAD"
  
- static irqreturn_t interrupt_handler(int irq, void* dev_id, struct pt_regs* regs);
+static irqreturn_t interrupt_handler(int irq, void* dev_id, struct pt_regs* regs);
  
  
 static ssize_t gpio_read(struct file* filp, char __user* buff, size_t count, loff_t* offp);
