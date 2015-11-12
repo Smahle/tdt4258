@@ -38,14 +38,59 @@ static struct file_operations gpio_fops = {
 
 static int __init template_init(void)
 {
-	int x =	request_mem_region(FIRST, LENGTH, NAME);
-	if (x == NULL){
-	return -1;
 
-	ioremap_nocache();
-	return 0;
+// fetch device num, see pg. 45 in ldd (cp. 3)
+ if (alloc_chrdev_region(&dev_num, 0, 1, DEVICE_NAME)) {
+   printk(KERN_INFO "FAILURE alloc_chrdev_regeion!");
+   return -1;
+}
+
+ // setup I/O ports:
+ if (!request_mem_region(GPIO_PC_MODEL, 4, DEVICE_NAME)) {
+   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_PC_MODEL");
+   return -1;
+ }
+ if (!request_mem_region(GPIO_PC_DOUT, 4, DEVICE_NAME)) {
+   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_PC_DOUT");
+   return -1;
+ }
+
+ if (!request_mem_region(GPIO_EXTIPSELL, 4, DEVICE_NAME)) {
+   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_EXTIPSELL");
+   return -1;
+ }
+
+ if (!request_mem_region(GPIO_EXTIFALL, 4, DEVICE_NAME)) {
+   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_EXTIFALL");
+   return -1;
+ }
+
+ if (!request_mem_region(GPIO_IEN, 4, DEVICE_NAME)) {
+   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_IEN");
+   return -1;
+ }
+ if (!request_mem_region(GPIO_IFC, 4, DEVICE_NAME)) {
+   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_IFC");
+   return -1;
+ }
+
+ // set up GPIO registers!
+ iowrite32(0x33333333, GPIO_PC_MODEL); /* set pins 0-7 to input */
+ iowrite32(0xff,       GPIO_PC_DOUT); /* internal pullup ... */
+ iowrite32(0x22222222, GPIO_EXTIPSELL);
+
+ // set up GPIO interrupts!
+ if (request_irq(17, (irq_handler_t) interrupt_handler, 0, DEVICE_NAME, &gpio_cdev) || // EVEN
+     request_irq(18, (irq_handler_t) interrupt_handler, 0, DEVICE_NAME, &gpio_cdev)) { // ODD
+   printk(KERN_INFO "FAILURE request_irq!");
+   return -1;
+ }
+
+ iowrite32(0xff,       GPIO_EXTIFALL);
+ iowrite32(0xff,       GPIO_IEN);
+ iowrite32(0xff,       GPIO_IFC);
 	
-	 cdev_init(&gpio_cdev, &gpio_fops);
+ cdev_init(&gpio_cdev, &gpio_fops);
  gpio_cdev.owner = THIS_MODULE;
  gpio_cdev.ops = &gpio_fops;
 
