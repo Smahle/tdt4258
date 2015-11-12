@@ -125,9 +125,13 @@ static int __init template_init(void)
 static void __exit template_cleanup(void)
 {
 	
-	void unregister_chrdev_region(dev_t first, unsigned int count);
-	
-	 printk("Short life for a small module...\n");
+  // release I/O ports
+  release_mem_region(GPIO_PC_MODEL, 4);
+  release_mem_region(GPIO_PC_DOUT, 4);
+  release_mem_region(GPIO_EXTIPSELL, 4);
+  release_mem_region(GPIO_EXTIFALL, 4);
+  release_mem_region(GPIO_IEN, 4);
+  release_mem_region(GPIO_IFC, 4);
 
   // remove irq handlers
   free_irq(17, &gpio_cdev);
@@ -137,17 +141,23 @@ static void __exit template_cleanup(void)
   device_destroy(cl, dev_num);
   class_destroy(cl);
   cdev_del(&gpio_cdev);
+
+  unregister_chrdev_region(dev_num, 1);
+  
+  printk(KERN_INFO A small module with short life...\n");	
 	
 }
 
-struct resource *request_region(unsigned long first, unsigned long n, const char *name);
 
+irqreturn_t interrupt_handler(int irq, void *dev_id, struct pt_regs *regs) {
+  // interrupts are marked as handled
+  iowrite32(0xff, GPIO_IFC);
+  if (async_queue)
+    kill_fasync(&async_queue, SIGIO, POLL_IN);
 
-
-
-
-
-// See I/O Allocation chapter 9 in LDD
+  printk(KERN_INFO "Interrupt successfully handled.");
+  return IRQ_HANDLED;
+}
 
 
 static ssize_t gpio_read(struct file* filp, char __user* buff, size_t count, loff_t* offp) {
@@ -156,7 +166,7 @@ static ssize_t gpio_read(struct file* filp, char __user* buff, size_t count, lof
     printk(KERN_INFO "READ FAILURE");
     return 0;
   }
-  return 1; // byte length, not error code
+  return 1;
 }
 
 static ssize_t gpio_write(struct file* filp, const char __user* buff, size_t count,  loff_t* offp) {
@@ -175,7 +185,6 @@ static int gpio_release(struct inode* inode, struct file* filp) {
 }
 
 static int gpio_fasync(int fd, struct file* filp, int mode) {
-  // pg 171 cp 09 in ldd
   return fasync_helper(fd, filp, mode, &async_queue);
 }
 
