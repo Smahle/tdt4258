@@ -15,6 +15,17 @@
  *
  * Returns 0 if successfull, otherwise -1
  */
+static ssize_t gpio_read(struct file* filp, char __user* buff, size_t count, loff_t* offp);
+static ssize_t gpio_write(struct file* filp, const char __user* buff, size_t count,  loff_t* offp);
+static int gpio_open(struct inode* inode, struct file* filp);
+static int gpio_release(struct inode* inode, struct file* filp);
+static int gpio_fasync(int fd, struct file* filp, int mode);
+
+static dev_t dev_num;
+struct cdev gpio_cdev;
+struct fasync_struct* async_queue;
+struct class* cl;
+
 static struct file_operations gpio_fops = {
   .owner = THIS_MODULE,
   .read = gpio_read,
