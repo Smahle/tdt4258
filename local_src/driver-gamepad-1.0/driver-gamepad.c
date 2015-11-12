@@ -75,6 +75,16 @@ static void __exit template_cleanup(void)
 	void unregister_chrdev_region(dev_t first, unsigned int count);
 	
 	 printk("Short life for a small module...\n");
+
+  // remove irq handlers
+  free_irq(17, &gpio_cdev);
+  free_irq(18, &gpio_cdev);
+
+  // destroy device driver
+  device_destroy(cl, dev_num);
+  class_destroy(cl);
+  cdev_del(&gpio_cdev);
+	
 }
 
 struct resource *request_region(unsigned long first, unsigned long n, const char *name);
