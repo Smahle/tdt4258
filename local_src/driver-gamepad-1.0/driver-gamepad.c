@@ -98,6 +98,22 @@ struct resource *request_region(unsigned long first, unsigned long n, const char
 
 
 
+
+static ssize_t gpio_write(struct file* filp, const char __user* buff, size_t count,  loff_t* offp) {
+  printk(KERN_INFO "GPIO WRITTEN?!");
+  return 0;
+}
+
+static int gpio_open(struct inode* inode, struct file* filp) {
+  printk(KERN_INFO "GPIO OPENED?!");
+  return 0;
+}
+
+static int gpio_release(struct inode* inode, struct file* filp) {
+  printk(KERN_INFO "GPIO RELEASED?!");
+  return 0;
+}
+
 module_init(template_init);
 module_exit(template_cleanup);
 
