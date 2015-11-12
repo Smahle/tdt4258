@@ -6,15 +6,23 @@
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/ioport.h>
+#include <linux/fs.h>
+#include <linux/cdev.h>
+#include <linux/device.h>
+#include <linux/irqreturn.h>
+#include <linux/interrupt.h>
+#include <linux/sched.h>
+#include <linux/irq.h>
+#include <linux/signal.h>
+#include <linux/uaccess.h>
+#include <asm/io.h>
+#include "efm32gg.h"
 
-/*
- * template_init - function to insert this module into kernel space
- *
- * This is the first of two exported functions to handle inserting this
- * code into a running kernel
- *
- * Returns 0 if successfull, otherwise -1
- */
+ #define DEVICE_NAME "GPIO_PAD"
+ 
+ static irqreturn_t interrupt_handler(int irq, void* dev_id, struct pt_regs* regs);
+ 
+ 
 static ssize_t gpio_read(struct file* filp, char __user* buff, size_t count, loff_t* offp);
 static ssize_t gpio_write(struct file* filp, const char __user* buff, size_t count,  loff_t* offp);
 static int gpio_open(struct inode* inode, struct file* filp);
