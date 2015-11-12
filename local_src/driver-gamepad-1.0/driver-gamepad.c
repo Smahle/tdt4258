@@ -44,6 +44,21 @@ static int __init template_init(void)
 
 	ioremap_nocache();
 	return 0;
+	
+	 cdev_init(&gpio_cdev, &gpio_fops);
+ gpio_cdev.owner = THIS_MODULE;
+ gpio_cdev.ops = &gpio_fops;
+
+ if (cdev_add(&gpio_cdev, dev_num,1)) {
+   printk(KERN_INFO "FAILURE cdev_add");
+   return -1;
+ }
+ cl = class_create(THIS_MODULE, DEVICE_NAME);
+ device_create(cl, NULL, dev_num, NULL, DEVICE_NAME);
+
+
+ printk(KERN_INFO "Hello World, here is your GPIO-module speaking\n");
+ return 0;
 
 }
 
