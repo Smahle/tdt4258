@@ -15,6 +15,15 @@
  *
  * Returns 0 if successfull, otherwise -1
  */
+static struct file_operations gpio_fops = {
+  .owner = THIS_MODULE,
+  .read = gpio_read,
+  .write = gpio_write,
+  .open = gpio_open,
+  .release = gpio_release,
+  .fasync = gpio_fasync
+};
+
 
 static int __init template_init(void)
 {
@@ -36,6 +45,9 @@ static int __init template_init(void)
 
 static void __exit template_cleanup(void)
 {
+	
+	void unregister_chrdev_region(dev_t first, unsigned int count);
+	
 	 printk("Short life for a small module...\n");
 }
 
