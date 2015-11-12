@@ -97,7 +97,14 @@ struct resource *request_region(unsigned long first, unsigned long n, const char
 // See I/O Allocation chapter 9 in LDD
 
 
-
+static ssize_t gpio_read(struct file* filp, char __user* buff, size_t count, loff_t* offp) {
+  uint8_t gpio_button_state = ioread8(GPIO_PC_DIN);
+  if (copy_to_user(buff, &gpio_button_state, 1)) {
+    printk(KERN_INFO "READ FAILURE");
+    return 0;
+  }
+  return 1; // byte length, not error code
+}
 
 static ssize_t gpio_write(struct file* filp, const char __user* buff, size_t count,  loff_t* offp) {
   printk(KERN_INFO "GPIO WRITTEN?!");
@@ -112,6 +119,11 @@ static int gpio_open(struct inode* inode, struct file* filp) {
 static int gpio_release(struct inode* inode, struct file* filp) {
   printk(KERN_INFO "GPIO RELEASED?!");
   return 0;
+}
+
+static int gpio_fasync(int fd, struct file* filp, int mode) {
+  // pg 171 cp 09 in ldd
+  return fasync_helper(fd, filp, mode, &async_queue);
 }
 
 module_init(template_init);
