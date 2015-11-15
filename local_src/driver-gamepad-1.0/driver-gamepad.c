@@ -43,42 +43,53 @@ static struct file_operations gpio_fops = {
   .fasync = gpio_fasync
 };
 
+static uint8_t interrupt_value;
 
 static int __init template_init(void)
 {
+ interrupt_value = 0;
 
-// fetch device num, see pg. 45 in ldd (cp. 3)
+ // fetch device num, see pg. 45 in ldd (cp. 3)
  if (alloc_chrdev_region(&dev_num, 0, 1, DEVICE_NAME)) {
-   printk(KERN_INFO "FAILURE alloc_chrdev_regeion!");
+   printk(KERN_INFO "FAILURE alloc_chrdev_regeion!\n");
    return -1;
-}
+ }
 
  // setup I/O ports:
- if (!request_mem_region(GPIO_PC_MODEL, 4, DEVICE_NAME)) {
-   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_PC_MODEL");
-   return -1;
- }
- if (!request_mem_region(GPIO_PC_DOUT, 4, DEVICE_NAME)) {
-   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_PC_DOUT");
+ if (!request_mem_region((unsigned long)GPIO_PC_MODEL, 4, DEVICE_NAME)) {
+   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_PC_MODEL\n");
    return -1;
  }
 
- if (!request_mem_region(GPIO_EXTIPSELL, 4, DEVICE_NAME)) {
-   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_EXTIPSELL");
+ if (!request_mem_region((unsigned long)GPIO_PC_DOUT, 4, DEVICE_NAME)) {
+   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_PC_DOUT\n");
    return -1;
  }
 
- if (!request_mem_region(GPIO_EXTIFALL, 4, DEVICE_NAME)) {
-   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_EXTIFALL");
+ if (!request_mem_region((unsigned long)GPIO_EXTIPSELL, 4, DEVICE_NAME)) {
+   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_EXTIPSELL\n");
    return -1;
  }
 
- if (!request_mem_region(GPIO_IEN, 4, DEVICE_NAME)) {
-   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_IEN");
+ if (!request_mem_region((unsigned long)GPIO_EXTIRISE, 4, DEVICE_NAME)) {
+   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_EXTIRISE\n");
    return -1;
  }
- if (!request_mem_region(GPIO_IFC, 4, DEVICE_NAME)) {
-   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_IFC");
+ if (!request_mem_region((unsigned long)GPIO_EXTIFALL, 4, DEVICE_NAME)) {
+   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_EXTIFALL\n");
+   return -1;
+ }
+
+ if (!request_mem_region((unsigned long)GPIO_IEN, 4, DEVICE_NAME)) {
+   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_IEN\n");
+   return -1;
+ }
+ if (!request_mem_region((unsigned long)GPIO_IF, 4, DEVICE_NAME)) {
+   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_IF\n");
+   return -1;
+ }
+ if (!request_mem_region((unsigned long)GPIO_IFC, 4, DEVICE_NAME)) {
+   printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_IFC\n");
    return -1;
  }
 
@@ -90,10 +101,11 @@ static int __init template_init(void)
  // set up GPIO interrupts!
  if (request_irq(17, (irq_handler_t) interrupt_handler, 0, DEVICE_NAME, &gpio_cdev) || // EVEN
      request_irq(18, (irq_handler_t) interrupt_handler, 0, DEVICE_NAME, &gpio_cdev)) { // ODD
-   printk(KERN_INFO "FAILURE request_irq!");
+   printk(KERN_INFO "FAILURE request_irq!\n");
    return -1;
  }
 
+ iowrite32(0xff,       GPIO_EXTIRISE);
  iowrite32(0xff,       GPIO_EXTIFALL);
  iowrite32(0xff,       GPIO_IEN);
  iowrite32(0xff,       GPIO_IFC);
@@ -103,7 +115,7 @@ static int __init template_init(void)
  gpio_cdev.ops = &gpio_fops;
 
  if (cdev_add(&gpio_cdev, dev_num,1)) {
-   printk(KERN_INFO "FAILURE cdev_add");
+   printk(KERN_INFO "FAILURE cdev_add\n");
    return -1;
  }
  cl = class_create(THIS_MODULE, DEVICE_NAME);
@@ -126,12 +138,14 @@ static void __exit template_cleanup(void)
 {
 	
   // release I/O ports
-  release_mem_region(GPIO_PC_MODEL, 4);
-  release_mem_region(GPIO_PC_DOUT, 4);
-  release_mem_region(GPIO_EXTIPSELL, 4);
-  release_mem_region(GPIO_EXTIFALL, 4);
-  release_mem_region(GPIO_IEN, 4);
-  release_mem_region(GPIO_IFC, 4);
+  release_mem_region((unsigned long)GPIO_PC_MODEL, 4);
+  release_mem_region((unsigned long)GPIO_PC_DOUT, 4);
+  release_mem_region((unsigned long)GPIO_EXTIPSELL, 4);
+  release_mem_region((unsigned long)GPIO_EXTIRISE, 4);
+  release_mem_region((unsigned long)GPIO_EXTIFALL, 4);
+  release_mem_region((unsigned long)GPIO_IEN, 4);
+  release_mem_region((unsigned long)GPIO_IF, 4);
+  release_mem_region((unsigned long)GPIO_IFC, 4);
 
   // remove irq handlers
   free_irq(17, &gpio_cdev);
@@ -144,43 +158,44 @@ static void __exit template_cleanup(void)
 
   unregister_chrdev_region(dev_num, 1);
   
-  printk(KERN_INFO A small module with short life...\n");	
+  printk(KERN_INFO "A small module with short life...\n");	
 	
 }
 
 
 irqreturn_t interrupt_handler(int irq, void *dev_id, struct pt_regs *regs) {
+  interrupt_value = ioread8(GPIO_IF) & ~ioread8(GPIO_PC_DIN);
+
   // interrupts are marked as handled
   iowrite32(0xff, GPIO_IFC);
   if (async_queue)
     kill_fasync(&async_queue, SIGIO, POLL_IN);
 
-  printk(KERN_INFO "Interrupt successfully handled.");
+  printk(KERN_INFO "Interrupt successfully handled (0x%02x).\n", interrupt_value);
   return IRQ_HANDLED;
 }
 
 
 static ssize_t gpio_read(struct file* filp, char __user* buff, size_t count, loff_t* offp) {
-  uint8_t gpio_button_state = ioread8(GPIO_PC_DIN);
-  if (copy_to_user(buff, &gpio_button_state, 1)) {
-    printk(KERN_INFO "READ FAILURE");
+  if (copy_to_user(buff, &interrupt_value, 1)) {
+    printk(KERN_INFO "READ FAILURE\n");
     return 0;
   }
   return 1;
 }
 
 static ssize_t gpio_write(struct file* filp, const char __user* buff, size_t count,  loff_t* offp) {
-  printk(KERN_INFO "GPIO WRITTEN?!");
+  printk(KERN_INFO "GPIO WRITTEN?!\n");
   return 0;
 }
 
 static int gpio_open(struct inode* inode, struct file* filp) {
-  printk(KERN_INFO "GPIO OPENED?!");
+  printk(KERN_INFO "GPIO OPENED?!\n");
   return 0;
 }
 
 static int gpio_release(struct inode* inode, struct file* filp) {
-  printk(KERN_INFO "GPIO RELEASED?!");
+  printk(KERN_INFO "GPIO RELEASED?!\n");
   return 0;
 }
 

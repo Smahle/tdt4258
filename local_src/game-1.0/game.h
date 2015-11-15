@@ -2,6 +2,7 @@
 #define H_GAME
 
 #include <stdbool.h>
+#include <linux/fb.h>
 
 #define PADDLE_WIDTH  (64)
 #define PADDLE_HEIGHT (12)
@@ -13,6 +14,7 @@ void free_game();
 
 void reset_level();
 void set_paddle_speed(int speed);
+struct fb_copyarea get_rect();
 bool tick();
 
 #endif

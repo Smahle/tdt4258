@@ -1,13 +1,15 @@
-BIN := fbBreakout
-CC  := gcc
+CC := arm-cortexm3-uclinuxeabi-gcc
 
 OBJS := main.o game.o
-CFLAGS := -Wall -O2
+CFLAGS := -std=gnu99 -Wall -O2
 
 .phony: clean
 
-$(BIN): $(OBJS)
-	gcc $(CFLAGS) -o $@ $^
+game: $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
+
+install:
+
 
 clean:
-	-rm -f $(OBJS) $(BIN)
+	-rm -f game $(OBJS)

@@ -7,6 +7,8 @@ static char *screen;                    // Memory mapped screen space.
 static int   xres, yres;                // Screen resolution.
 static int   stride;                    // Bytes per display line.
 static int   bits;                      // Colour resolution.
+static int   rect_left, rect_right,
+             rect_top, rect_bottom;     // Track changed area of screen;
 
 static int   boxes_x, boxes_y;          // Number of boxes.
 static bool *boxes = NULL;              // Map of non-destroyed boxes.
@@ -79,6 +81,12 @@ static void set_pixel(int x, int y, int colour) {
       *(uint32_t*)(screen + byte) = colour;         // Direct copy.
     } break;
   }
+
+  /* Mark area as updated. */
+  if (x < rect_left)   rect_left   = x;
+  if (x > rect_right)  rect_right  = x;
+  if (y < rect_top)    rect_top    = y;
+  if (y > rect_bottom) rect_bottom = y;
 }
 
 static void draw_box(int x, int y, int width, int height, int colour)
@@ -165,7 +173,7 @@ static bool resolve_paddle_collision()
                         paddle_pos_x - paddle_width/2, paddle_pos_x + paddle_width/2,
                         paddle_pos_y - paddle_height/2, paddle_pos_y + paddle_height/2)) {
     /* Set speed depending on relative ball-to-paddle position. */
-    ball_speed_x = 4 * (ball_pos_x - paddle_pos_x) / paddle_width;
+    ball_speed_x = 8 * (ball_pos_x - paddle_pos_x) / paddle_width;
     ball_speed_y = 10 - ball_speed_x;
 
     if (ball_speed_y >= -1) {
@@ -187,9 +195,11 @@ static bool resolve_boxes_collision()
   int ball_top    = ball_pos_y - ball_halfwidth;
   int ball_bottom = ball_pos_y + ball_halfwidth;
 
-  /* Calculate nearest possible collision. */
-  int box_x = (2 * ball_pos_x - box_width)  / (2 * box_width);
-  int box_y = (2 * ball_pos_y - box_height) / (2 * box_height);
+  /* Calculate which box ball is inside (may not exist). */
+  int box_x = ball_pos_x / box_width;
+  int box_y = ball_pos_y / box_height;
+
+  /* Calculate walls of found box. */
   int box_left   = box_x * box_width;
   int box_right  = box_left + box_width;
   int box_top    = box_y * box_height;
@@ -334,6 +344,33 @@ void reset_level()
 void set_paddle_speed(int speed)
 {
   paddle_speed = speed;
+}
+
+struct fb_copyarea get_rect()
+{
+  struct fb_copyarea rect;
+
+  if (rect_left > rect_right ||
+      rect_top > rect_bottom) {
+    /* No update. */
+    rect.dx = 0;
+    rect.dy = 0;
+    rect.width = 0;
+    rect.height = 0;
+
+  } else {
+    rect.dx = rect_left;
+    rect.dy = rect_top;
+    rect.width = rect_right - rect_left + 1;
+    rect.height = rect_bottom - rect_top + 1;
+  }
+
+  rect_left = xres;
+  rect_right = 0;
+  rect_top = yres;
+  rect_bottom = 0;
+
+  return rect;
 }
 
 bool tick()

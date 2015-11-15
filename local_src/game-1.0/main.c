@@ -11,16 +11,13 @@
 #include <linux/fb.h>
 #include <linux/input.h>
 
-#include "main.h"
 #include "game.h"
 
 static char *fb_mem;      // Pointer to memory map.
 static int   fb_mem_size; // Size of memory map.
 static int   framebuffer; // File handler for framebuffer device.
 static int   timer;       // File handler for periodic timer.
-static int   keyboard;    // File handler for keyboard
-
-static int   current_key; // Last key pressed. We only handle release for this one.
+static int   gamepad;     // File handler for gamepad
 
 static int initialise_framebuffer(const char* bin_name)
 {
@@ -97,22 +94,13 @@ static int initialise_timer(const char *bin_name)
   return 0;
 }
 
-static int initialise_keyboard(const char *bin_name)
+static int initialise_gamepad(const char *bin_name)
 {
-  current_key = 0;
-
-  /* Open keyboard in non-block mode, so read won't block for input. */
-  keyboard = open("/dev/input/event0", O_RDONLY | O_NONBLOCK);
-  if (keyboard == -1){
+  /* Open gamepad in non-block mode, so read won't block for input. */
+  gamepad = open("/dev/GPIO_PAD", O_RDONLY | O_NONBLOCK);
+  if (gamepad == -1){
     fprintf(stderr, "%s: %s\n", bin_name, strerror(errno));
     return -8;
-  }
-
-  /* Turn on grabbing, so key presses don't go anywhere else. */
-  if (ioctl(keyboard, EVIOCGRAB, 1) == -1) {
-    fprintf(stderr, "%s: %s\n", bin_name, strerror(errno));
-    close(keyboard);
-    return -9;
   }
 
   return 0;
@@ -129,9 +117,9 @@ int main(int argc, const char **argv)
   }
 
   /* Initialise input device. */
-  result = initialise_keyboard(argv[0]);
+  result = initialise_gamepad(argv[0]);
   if (result != 0) {
-    goto FAIL_KBD;
+    goto FAIL_GPAD;
   }
 
   /* Create playing field. */
@@ -155,56 +143,39 @@ int main(int argc, const char **argv)
       break;
     }
 
-    /* Check keyboard for new events. */
-    struct input_event event;
-    while (read(keyboard, &event, sizeof(event)) >= 0) {
-      if (event.type == EV_KEY) {
-        /* Got key input. */
-        if (event.value == 0 && event.code == current_key) {
-          /* Last pressed key was released. */
-          set_paddle_speed(0);
-          current_key = 0;
-
-        } else if (event.value == 1) {
-          /* A key was pressed. */
-          bool stateful = true;
-          switch (event.code) {
-          case KEY_LEFT:
-            set_paddle_speed(-3);
-            break;
-
-          case KEY_RIGHT:
-            set_paddle_speed(3);
-            break;
-
-          case KEY_ESC:
-          case KEY_Q:
-            run = false;
-
-          default:
-            stateful = false;
-          }
-
-          if (stateful) {
-            current_key = event.code;
-          }
+    /* Check gamepad for new events. */
+    uint8_t input;
+    if (read(gamepad, &input, sizeof(input)) >= 0) {
+      if (input == 0x01 || input == 0x10) {
+        set_paddle_speed(-3);
+      } else if (input == 0x04 || input == 0x40) {
+        set_paddle_speed(3);
+      } else {
+        set_paddle_speed(0);
+        if (input == 0x08 || input == 0x80) {
+          run = false;
         }
       }
     }
 
-    if (errno != EAGAIN) {
-      /* When reading failed, it was not because no key was pressed. */
-      fprintf(stderr, "%s: %s\n", argv[0], strerror(errno));
-      result = -11;
-      break;
+    /* Update screen. */
+    struct fb_copyarea rect = get_rect();
+    if (rect.width > 0 && rect.height > 0) {
+      // Something wrong with offset here. Must increase .dy by 1,
+      // except when that takes us offscreen.
+      rect.dy++;
+      if (rect.dy + rect.height > 240) {
+        rect.height--;
+      }
+      ioctl(framebuffer, 0x4680, &rect);
     }
   }
 
   /* Clean up and close. */
   close(timer);
  FAIL_TIMER:
-  close(keyboard);
- FAIL_KBD:
+  close(gamepad);
+ FAIL_GPAD:
   free_game();
   munmap(fb_mem, fb_mem_size);
   close(framebuffer);
