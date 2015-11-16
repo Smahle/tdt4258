@@ -94,10 +94,14 @@ static int __init Driver_init(void)
  }
 
  // set up GPIO registers!
- iowrite32(0x33333333, GPIO_PC_MODEL); /* set pins 0-7 to input */
- iowrite32(0xff,       GPIO_PC_DOUT); /* internal pullup ... */
- iowrite32(0x22222222, GPIO_EXTIPSELL);
-
+ iowrite32(0x33333333,GPIO_PC_MODEL); //set pins C0-7 as input
+ iowrite32(0xFF,GPIO_PC_DOUT); //enable internal pull-up
+ iowrite32(0x22222222,GPIO_EXTIPSELL);
+ iowrite32(0xFF,GPIO_EXTIRISE);
+ iowrite32(0xFF,GPIO_EXTIFALL);
+ iowrite32(0xFF,GPIO_IEN);
+ iowrite32(0xFF,GPIO_IFC);
+ 
  // set up GPIO interrupts!
  if (request_irq(17, (irq_handler_t) interrupt_handler, 0, DEVICE_NAME, &gpio_cdev) || // EVEN
      request_irq(18, (irq_handler_t) interrupt_handler, 0, DEVICE_NAME, &gpio_cdev)) { // ODD
@@ -105,10 +109,7 @@ static int __init Driver_init(void)
    return -1;
  }
 
- iowrite32(0xff,       GPIO_EXTIRISE);
- iowrite32(0xff,       GPIO_EXTIFALL);
- iowrite32(0xff,       GPIO_IEN);
- iowrite32(0xff,       GPIO_IFC);
+
 	
  cdev_init(&gpio_cdev, &gpio_fops);
  gpio_cdev.owner = THIS_MODULE;
