@@ -111,7 +111,7 @@ static int __init Driver_init(void)
  gpio_cdev.ops = &gpio_fops;
 
  if (cdev_add(&gpio_cdev, dev_id,1)) {
-   printk(KERN_ERR "FAILURE cdev_add\n");
+   printk(KERN_ERR "Could not add character device\n");
    return -1;
  }
  cl = class_create(THIS_MODULE, DEVICE_NAME);
@@ -168,19 +168,19 @@ irqreturn_t interrupt_handler(int irq, void *dev_id, struct pt_regs *regs) {
 
 static ssize_t gpio_read(struct file* filp, char __user* buff, size_t count, loff_t* offp) {
   if (copy_to_user(buff, &interrupt_value, 1)) {
-    printk(KERN_ERR "READ FAILURE\n");
+    printk(KERN_ERR "Copy failed\n");
     return 0;
   }
   return 1;
 }
 
 static int gpio_open(struct inode* inode, struct file* filp) {
-  printk(KERN_INFO "GPIO OPENED?\n");
+  printk(KERN_INFO "Driver opened\n");
   return 0;
 }
 
 static int gpio_release(struct inode* inode, struct file* filp) {
-  printk(KERN_INFO "GPIO RELEASED?\n");
+  printk(KERN_INFO "Driver closed\n");
   return 0;
 }
 
