@@ -94,7 +94,7 @@ static int __init Driver_init(void)
 
  // initialize GPIO registers!
  iowrite32(0x33333333,GPIO_PC_MODEL); //set pins C0-7 as input
- iowrite32(0xFF,GPIO_PC_DOUT); //enable internal pull-up
+ iowrite32(0xFF,GPIO_PC_DOUT);
  iowrite32(0x22222222,GPIO_EXTIPSELL);
  iowrite32(0xFF,GPIO_EXTIRISE);
  iowrite32(0xFF,GPIO_EXTIFALL);
