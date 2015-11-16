@@ -185,17 +185,17 @@ static ssize_t gpio_read(struct file* filp, char __user* buff, size_t count, lof
 }
 
 static ssize_t gpio_write(struct file* filp, const char __user* buff, size_t count,  loff_t* offp) {
-  printk(KERN_INFO "GPIO WRITTEN?!\n");
+  printk(KERN_INFO "GPIO WRITTEN?\n");
   return 0;
 }
 
 static int gpio_open(struct inode* inode, struct file* filp) {
-  printk(KERN_INFO "GPIO OPENED?!\n");
+  printk(KERN_INFO "GPIO OPENED?\n");
   return 0;
 }
 
 static int gpio_release(struct inode* inode, struct file* filp) {
-  printk(KERN_INFO "GPIO RELEASED?!\n");
+  printk(KERN_INFO "GPIO RELEASED?\n");
   return 0;
 }
 
