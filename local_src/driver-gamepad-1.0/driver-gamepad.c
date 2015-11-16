@@ -48,61 +48,58 @@ static int __init Driver_init(void)
 {
  interrupt_value = 0;
 
- // fetch device number
+//Ask for access
  if (alloc_chrdev_region(&dev_id, 0, 1, DEVICE_NAME)) {
-   printk(KERN_ERR "FAILURE alloc_chrdev_regeion!\n");
+   printk(KERN_ERR "Access denied: ID number\n");
    return -1;
  }
 
- // initalize I/O ports
  if (!request_mem_region((unsigned long)GPIO_PC_MODEL, 4, DEVICE_NAME)) {
-   printk(KERN_ERR "FAILURE GPIO_PC_MODEL\n");
+   printk(KERN_ERR "Access denied: GPIO_PC_MODEL\n");
    return -1;
  }
 
  if (!request_mem_region((unsigned long)GPIO_PC_DOUT, 4, DEVICE_NAME)) {
-   printk(KERN_ERR "FAILURE GPIO_PC_DOUT\n");
+   printk(KERN_ERR "Access denied: GPIO_PC_DOUT\n");
    return -1;
  }
 
  if (!request_mem_region((unsigned long)GPIO_EXTIPSELL, 4, DEVICE_NAME)) {
-   printk(KERN_ERR "FAILURE TO ALLOCATE: GPIO_EXTIPSELL\n");
+   printk(KERN_ERR "Access denied: GPIO_EXTIPSELL\n");
    return -1;
  }
 
  if (!request_mem_region((unsigned long)GPIO_EXTIRISE, 4, DEVICE_NAME)) {
-   printk(KERN_ERR "FAILURE TO ALLOCATE: GPIO_EXTIRISE\n");
+   printk(KERN_ERR "Access denied: GPIO_EXTRISE\n");
    return -1;
  }
  if (!request_mem_region((unsigned long)GPIO_EXTIFALL, 4, DEVICE_NAME)) {
-   printk(KERN_ERR "FAILURE TO ALLOCATE: GPIO_EXTIFALL\n");
+   printk(KERN_ERR "Access denied: GPIO_EXTIFALL\n");
    return -1;
  }
 
  if (!request_mem_region((unsigned long)GPIO_IEN, 4, DEVICE_NAME)) {
-   printk(KERN_ERR "FAILURE TO ALLOCATE: GPIO_IEN\n");
+   printk(KERN_ERR "Access denied: GPIO_IEN\n");
    return -1;
  }
  if (!request_mem_region((unsigned long)GPIO_IF, 4, DEVICE_NAME)) {
-   printk(KERN_ERR "FAILURE TO ALLOCATE: GPIO_IF\n");
+   printk(KERN_ERR "Access denied: GPIO_IF\n");
    return -1;
  }
  if (!request_mem_region((unsigned long)GPIO_IFC, 4, DEVICE_NAME)) {
-   printk(KERN_ERR "FAILURE TO ALLOCATE: GPIO_IFC\n");
+   printk(KERN_ERR "Access denied: GPIO_IFC\n");
    return -1;
  }
 
- // initialize GPIO registers!
  iowrite32(0x33333333,GPIO_PC_MODEL); //set pins C0-7 as input
- iowrite32(0xFF,GPIO_PC_DOUT);
+ iowrite32(0xFF,GPIO_PC_DOUT); //enable internal pull-up
  iowrite32(0x22222222,GPIO_EXTIPSELL);
  iowrite32(0xFF,GPIO_EXTIRISE);
  iowrite32(0xFF,GPIO_EXTIFALL);
 
- // initialize GPIO interrupts!
- if (request_irq(17, (irq_handler_t) interrupt_handler, 0, DEVICE_NAME, &gpio_cdev) || // EVEN
-     request_irq(18, (irq_handler_t) interrupt_handler, 0, DEVICE_NAME, &gpio_cdev)) { // ODD
-   printk(KERN_ERR "FAILURE request_irq!\n");
+ if (request_irq(17, (irq_handler_t) interrupt_handler, 0, DEVICE_NAME, &gpio_cdev) ||
+     request_irq(18, (irq_handler_t) interrupt_handler, 0, DEVICE_NAME, &gpio_cdev)) {
+   printk(KERN_ERR "Interrupt handler");
    return -1;
  }
 
@@ -121,7 +118,7 @@ static int __init Driver_init(void)
  device_create(cl, NULL, dev_id, NULL, DEVICE_NAME);
 
 
- printk(KERN_INFO "Hello World, here is your GPIO-module speaking\n");
+ printk(KERN_INFO "Gamepad driver activated\n");
  return 0;
 
 }
@@ -136,7 +133,6 @@ static int __init Driver_init(void)
 static void __exit Driver_cleanup(void)
 {
 	
-  // deallocate I/O ports
   release_mem_region((unsigned long)GPIO_PC_MODEL, 4);
   release_mem_region((unsigned long)GPIO_PC_DOUT, 4);
   release_mem_region((unsigned long)GPIO_EXTIPSELL, 4);
@@ -146,18 +142,16 @@ static void __exit Driver_cleanup(void)
   release_mem_region((unsigned long)GPIO_IF, 4);
   release_mem_region((unsigned long)GPIO_IFC, 4);
 
-  // deallocate irq handlers
   free_irq(17, &gpio_cdev);
   free_irq(18, &gpio_cdev);
 
-  // destroy device driver
   device_destroy(cl, dev_id);
   class_destroy(cl);
   cdev_del(&gpio_cdev);
 
   unregister_chrdev_region(dev_id, 1);
   
-  printk(KERN_INFO "Unloaded gamepad\n");	
+  printk(KERN_INFO "Gamepad deactivated\n");	
 }
 
 irqreturn_t interrupt_handler(int irq, void *dev_id, struct pt_regs *regs) {
