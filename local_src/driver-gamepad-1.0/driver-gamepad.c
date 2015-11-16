@@ -49,13 +49,13 @@ static int __init Driver_init(void)
 {
  interrupt_value = 0;
 
- // fetch device num, see pg. 45 in ldd (cp. 3)
+ // fetch device number
  if (alloc_chrdev_region(&dev_num, 0, 1, DEVICE_NAME)) {
    printk(KERN_INFO "FAILURE alloc_chrdev_regeion!\n");
    return -1;
  }
 
- // setup I/O ports:
+ // initalize I/O ports
  if (!request_mem_region((unsigned long)GPIO_PC_MODEL, 4, DEVICE_NAME)) {
    printk(KERN_INFO "FAILURE TO ALLOCATE: GPIO_PC_MODEL\n");
    return -1;
@@ -93,7 +93,7 @@ static int __init Driver_init(void)
    return -1;
  }
 
- // set up GPIO registers!
+ // initialize GPIO registers!
  iowrite32(0x33333333,GPIO_PC_MODEL); //set pins C0-7 as input
  iowrite32(0xFF,GPIO_PC_DOUT); //enable internal pull-up
  iowrite32(0x22222222,GPIO_EXTIPSELL);
@@ -102,7 +102,7 @@ static int __init Driver_init(void)
  iowrite32(0xFF,GPIO_IEN);
  iowrite32(0xFF,GPIO_IFC);
  
- // set up GPIO interrupts!
+ // initialize GPIO interrupts!
  if (request_irq(17, (irq_handler_t) interrupt_handler, 0, DEVICE_NAME, &gpio_cdev) || // EVEN
      request_irq(18, (irq_handler_t) interrupt_handler, 0, DEVICE_NAME, &gpio_cdev)) { // ODD
    printk(KERN_INFO "FAILURE request_irq!\n");
@@ -138,7 +138,7 @@ static int __init Driver_init(void)
 static void __exit Driver_cleanup(void)
 {
 	
-  // release I/O ports
+  // deallocate I/O ports
   release_mem_region((unsigned long)GPIO_PC_MODEL, 4);
   release_mem_region((unsigned long)GPIO_PC_DOUT, 4);
   release_mem_region((unsigned long)GPIO_EXTIPSELL, 4);
@@ -148,7 +148,7 @@ static void __exit Driver_cleanup(void)
   release_mem_region((unsigned long)GPIO_IF, 4);
   release_mem_region((unsigned long)GPIO_IFC, 4);
 
-  // remove irq handlers
+  // deallocate irq handlers
   free_irq(17, &gpio_cdev);
   free_irq(18, &gpio_cdev);
 
@@ -160,10 +160,7 @@ static void __exit Driver_cleanup(void)
   unregister_chrdev_region(dev_num, 1);
   
   printk(KERN_INFO "A small module with short life...\n");	
-	
 }
-
-
 irqreturn_t interrupt_handler(int irq, void *dev_id, struct pt_regs *regs) {
   interrupt_value = ioread8(GPIO_IF) & ~ioread8(GPIO_PC_DIN);
 
