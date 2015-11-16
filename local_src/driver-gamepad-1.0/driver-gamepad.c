@@ -45,7 +45,7 @@ static struct file_operations gpio_fops = {
 
 static uint8_t interrupt_value;
 
-static int __init template_init(void)
+static int __init Driver_init(void)
 {
  interrupt_value = 0;
 
@@ -134,7 +134,7 @@ static int __init template_init(void)
  * code from a running kernel
  */
 
-static void __exit template_cleanup(void)
+static void __exit Driver_cleanup(void)
 {
 	
   // release I/O ports
@@ -203,8 +203,8 @@ static int gpio_fasync(int fd, struct file* filp, int mode) {
   return fasync_helper(fd, filp, mode, &async_queue);
 }
 
-module_init(template_init);
-module_exit(template_cleanup);
+module_init(Driver_init);
+module_exit(Driver_cleanup);
 
 MODULE_DESCRIPTION("Small module, demo only, not very useful.");
 MODULE_LICENSE("GPL");
